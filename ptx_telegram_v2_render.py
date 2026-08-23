@@ -253,8 +253,7 @@ class HealthHandler(BaseHTTPRequestHandler):
 
         self.wfile.write(body) 
    
-    def log_message(self, format, *args):
-        return
+   
 
 
 def start_health_server():
