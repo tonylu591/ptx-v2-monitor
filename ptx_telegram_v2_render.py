@@ -116,22 +116,143 @@ logger = logging.getLogger("PTX-V2")
 # This endpoint is only for health checks; trading logic remains V2-only.
 # ============================================================
 class HealthHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path in ("/", "/health"):
-            body = b"PTX V2 monitor is running"
-            self.send_response(200)
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-        else:
-            body = b"Not Found"
-            self.send_response(404)
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+       def do_GET(self):
 
+        # ==============================
+        # Health check
+        # ==============================
+        if self.path in ("/", "/health"):
+
+            body = b"PTX V2 monitor is running"
+
+            self.send_response(200)
+            self.send_header(
+                "Content-Type",
+                "text/plain; charset=utf-8"
+            )
+            self.send_header(
+                "Content-Length",
+                str(len(body))
+            )
+            self.end_headers()
+
+            self.wfile.write(body)
+            return
+
+        # ==============================
+        # Dashboard API
+        # ==============================
+        if self.path == "/api/status":
+
+            flow5_trades, flow5_buy, flow5_sell, flow5_net = STATE.flow(300)
+
+            flow60_trades, flow60_buy, flow60_sell, flow60_net = STATE.flow(3600)
+
+            recent = list(STATE.recent_trades)[-20:]
+
+            trades = []
+
+            for trade in recent:
+
+                trades.append({
+                    "timestamp": trade.timestamp,
+                    "side": trade.side,
+                    "price": float(trade.price),
+                    "ptx_amount": float(trade.ptx_amount),
+                    "usdt_amount": float(trade.usdt_amount),
+                    "tx_hash": trade.tx_hash,
+                    "block_number": trade.block_number
+                })
+
+            data = {
+                "status": "LIVE",
+
+                "price": (
+                    float(STATE.latest_price)
+                    if STATE.latest_price is not None
+                    else 0
+                ),
+
+                "pool_ptx": (
+                    float(STATE.pool_ptx)
+                    if STATE.pool_ptx is not None
+                    else 0
+                ),
+
+                "pool_usdt": (
+                    float(STATE.pool_usdt)
+                    if STATE.pool_usdt is not None
+                    else 0
+                ),
+
+                "last_block": STATE.last_block,
+
+                "flow5": {
+                    "buy": float(flow5_buy),
+                    "sell": float(flow5_sell),
+                    "net": float(flow5_net),
+                    "trades": len(flow5_trades)
+                },
+
+                "flow60": {
+                    "buy": float(flow60_buy),
+                    "sell": float(flow60_sell),
+                    "net": float(flow60_net),
+                    "trades": len(flow60_trades)
+                },
+
+                "trades": trades
+            }
+
+            body = json.dumps(
+                data,
+                ensure_ascii=False
+            ).encode("utf-8")
+
+            self.send_response(200)
+
+            self.send_header(
+                "Content-Type",
+                "application/json; charset=utf-8"
+            )
+
+            self.send_header(
+                "Access-Control-Allow-Origin",
+                "*"
+            )
+
+            self.send_header(
+                "Content-Length",
+                str(len(body))
+            )
+
+            self.end_headers()
+
+            self.wfile.write(body)
+            return
+
+        # ==============================
+        # Not Found
+        # ==============================
+
+        body = b"Not Found"
+
+        self.send_response(404)
+
+        self.send_header(
+            "Content-Type",
+            "text/plain; charset=utf-8"
+        )
+
+        self.send_header(
+            "Content-Length",
+            str(len(body))
+        )
+
+        self.end_headers()
+
+        self.wfile.write(body) 
+    
     def log_message(self, format, *args):
         return
 
