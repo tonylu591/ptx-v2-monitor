@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ptx-telegram-v2
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python ptx_telegram_v2_render.py
+    healthCheckPath: /health
+    autoDeploy: true
