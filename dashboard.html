@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PTX V2 Monitor</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0b1020;
+    color: #ffffff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 25px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #8e99ad;
+    margin-top: 5px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #31d158;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background: #31d158;
+    border-radius: 50%;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.card {
+    background: #151c2f;
+    border: 1px solid #252e45;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.label {
+    color: #8e99ad;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.value {
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.green {
+    color: #31d158;
+}
+
+.red {
+    color: #ff453a;
+}
+
+.yellow {
+    color: #ffd60a;
+}
+
+.chart {
+    margin-top: 20px;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #657087;
+}
+
+.section {
+    margin-top: 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.flow-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.trade {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #252e45;
+}
+
+.trade:last-child {
+    border-bottom: none;
+}
+
+.small {
+    color: #8e99ad;
+    font-size: 12px;
+}
+
+.footer {
+    margin-top: 25px;
+    text-align: center;
+    color: #657087;
+    font-size: 12px;
+}
+
+@media(max-width: 800px) {
+    .grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .flow-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 500px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div>
+            <div class="title">PTX / USDT V2 Monitor</div>
+            <div class="subtitle">
+                BSC · PancakeSwap V2
+            </div>
+        </div>
+
+        <div class="status">
+            <span class="dot"></span>
+            LIVE
+        </div>
+    </div>
+
+    <div class="grid">
+
+        <div class="card">
+            <div class="label">PTX PRICE</div>
+            <div class="value" id="price">$0.00000000</div>
+        </div>
+
+        <div class="card">
+            <div class="label">PTX RESERVE</div>
+            <div class="value" id="ptxReserve">0</div>
+        </div>
+
+        <div class="card">
+            <div class="label">USDT RESERVE</div>
+            <div class="value" id="usdtReserve">$0</div>
+        </div>
+
+        <div class="card">
+            <div class="label">LAST BLOCK</div>
+            <div class="value" id="block">-</div>
+        </div>
+
+    </div>
+
+    <div class="card section">
+
+        <div class="section-title">
+            PTX PRICE
+        </div>
+
+        <div class="chart">
+            Price chart will appear here
+        </div>
+
+    </div>
+
+    <div class="flow-grid section">
+
+        <div class="card">
+
+            <div class="section-title">
+                PTX V2 · 5 MIN FLOW
+            </div>
+
+            <p>
+                🟢 BUY:
+                <strong id="buy5">$0</strong>
+            </p>
+
+            <p>
+                🔴 SELL:
+                <strong id="sell5">$0</strong>
+            </p>
+
+            <p>
+                NET FLOW:
+                <strong id="net5">$0</strong>
+            </p>
+
+            <p>
+                TRADES:
+                <strong id="trades5">0</strong>
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <div class="section-title">
+                PTX V2 · 1 HOUR FLOW
+            </div>
+
+            <p>
+                🟢 BUY:
+                <strong id="buy60">$0</strong>
+            </p>
+
+            <p>
+                🔴 SELL:
+                <strong id="sell60">$0</strong>
+            </p>
+
+            <p>
+                NET FLOW:
+                <strong id="net60">$0</strong>
+            </p>
+
+            <p>
+                TRADES:
+                <strong id="trades60">0</strong>
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="card section">
+
+        <div class="section-title">
+            RECENT TRADES
+        </div>
+
+        <div id="trades">
+            Waiting for trades...
+        </div>
+
+    </div>
+
+    <div class="footer">
+        PTX V2 Monitor · BSC · PancakeSwap V2
+        <br>
+        Auto refresh every 5 seconds
+    </div>
+
+</div>
+
+<script>
+
+async function loadData() {
+
+    try {
+
+        const response = await fetch("/api/status");
+
+        if (!response.ok) {
+            throw new Error("API unavailable");
+        }
+
+        const data = await response.json();
+
+        if (data.price !== undefined) {
+            document.getElementById("price").innerText =
+                "$" + Number(data.price).toFixed(8);
+        }
+
+        if (data.pool_ptx !== undefined) {
+            document.getElementById("ptxReserve").innerText =
+                Number(data.pool_ptx).toLocaleString();
+        }
+
+        if (data.pool_usdt !== undefined) {
+            document.getElementById("usdtReserve").innerText =
+                "$" + Number(data.pool_usdt).toLocaleString();
+        }
+
+        if (data.last_block !== undefined) {
+            document.getElementById("block").innerText =
+                data.last_block;
+        }
+
+        if (data.flow5) {
+
+            document.getElementById("buy5").innerText =
+                "$" + Number(data.flow5.buy).toFixed(2);
+
+            document.getElementById("sell5").innerText =
+                "$" + Number(data.flow5.sell).toFixed(2);
+
+            document.getElementById("net5").innerText =
+                "$" + Number(data.flow5.net).toFixed(2);
+
+            document.getElementById("trades5").innerText =
+                data.flow5.trades;
+        }
+
+        if (data.flow60) {
+
+            document.getElementById("buy60").innerText =
+                "$" + Number(data.flow60.buy).toFixed(2);
+
+            document.getElementById("sell60").innerText =
+                "$" + Number(data.flow60.sell).toFixed(2);
+
+            document.getElementById("net60").innerText =
+                "$" + Number(data.flow60.net).toFixed(2);
+
+            document.getElementById("trades60").innerText =
+                data.flow60.trades;
+        }
+
+        if (data.trades) {
+
+            const box = document.getElementById("trades");
+
+            box.innerHTML = "";
+
+            data.trades.forEach(trade => {
+
+                const row = document.createElement("div");
+
+                row.className = "trade";
+
+                const side =
+                    trade.side === "BUY"
+                    ? '<span class="green">BUY</span>'
+                    : '<span class="red">SELL</span>';
+
+                row.innerHTML = `
+                    <span>
+                        ${side}
+                        ${Number(trade.ptx_amount).toFixed(2)} PTX
+                    </span>
+
+                    <span>
+                        $${Number(trade.usdt_amount).toFixed(2)}
+                    </span>
+                `;
+
+                box.appendChild(row);
+
+            });
+
+        }
+
+    } catch (error) {
+
+        console.log("Dashboard API:", error);
+
+    }
+
+}
+
+loadData();
+
+setInterval(loadData, 5000);
+
+</script>
+
+</body>
+</html>
