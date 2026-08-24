@@ -118,26 +118,77 @@ logger = logging.getLogger("PTX-V2")
 class HealthHandler(BaseHTTPRequestHandler):
        def do_GET(self):
 
-        # ==============================
-        # Health check
-        # ==============================
-        if self.path in ("/", "/health"):
+# ==============================
+# Dashboard
+# ==============================
+if self.path == "/":
 
-            body = b"PTX V2 monitor is running"
+    dashboard_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "dashboard.html"
+    )
 
-            self.send_response(200)
-            self.send_header(
-                "Content-Type",
-                "text/plain; charset=utf-8"
-            )
-            self.send_header(
-                "Content-Length",
-                str(len(body))
-            )
-            self.end_headers()
+    try:
+        with open(dashboard_path, "rb") as f:
+            body = f.read()
 
-            self.wfile.write(body)
-            return
+        self.send_response(200)
+        self.send_header(
+            "Content-Type",
+            "text/html; charset=utf-8"
+        )
+        self.send_header(
+            "Content-Length",
+            str(len(body))
+        )
+        self.end_headers()
+
+        self.wfile.write(body)
+        return
+
+    except Exception as exc:
+        logger.exception(
+            "Dashboard读取失败: %s",
+            exc
+        )
+
+        body = b"Dashboard unavailable"
+
+        self.send_response(500)
+        self.send_header(
+            "Content-Type",
+            "text/plain; charset=utf-8"
+        )
+        self.send_header(
+            "Content-Length",
+            str(len(body))
+        )
+        self.end_headers()
+
+        self.wfile.write(body)
+        return
+
+
+# ==============================
+# Health check
+# ==============================
+if self.path == "/health":
+
+    body = b"PTX V2 monitor is running"
+
+    self.send_response(200)
+    self.send_header(
+        "Content-Type",
+        "text/plain; charset=utf-8"
+    )
+    self.send_header(
+        "Content-Length",
+        str(len(body))
+    )
+    self.end_headers()
+
+    self.wfile.write(body)
+    return
 
         # ==============================
         # Dashboard API
