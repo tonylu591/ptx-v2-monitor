@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PTX V2 Monitor</title>
+<title>PTX / USDT V2 Monitor</title>
 
 <style>
 * {
@@ -13,15 +13,15 @@
 
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #0b1020;
+    background: #090e1d;
     color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .container {
     max-width: 1200px;
     margin: auto;
-    padding: 25px;
+    padding: 28px 20px 50px;
 }
 
 .header {
@@ -32,45 +32,46 @@ body {
 }
 
 .title {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
 }
 
 .subtitle {
-    color: #8e99ad;
+    color: #8fa3c7;
     margin-top: 5px;
 }
 
-.status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #31d158;
+.live {
+    color: #22c55e;
+    font-size: 16px;
 }
 
-.dot {
+.live-dot {
+    display: inline-block;
     width: 10px;
     height: 10px;
-    background: #31d158;
+    background: #22c55e;
     border-radius: 50%;
+    margin-right: 7px;
 }
 
-.grid {
+.cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    gap: 14px;
+    margin-bottom: 20px;
 }
 
 .card {
-    background: #151c2f;
-    border: 1px solid #252e45;
+    background: #151d32;
+    border: 1px solid #26334f;
     border-radius: 14px;
     padding: 20px;
 }
 
 .label {
-    color: #8e99ad;
-    font-size: 13px;
+    color: #91a4c9;
+    font-size: 14px;
     margin-bottom: 10px;
 }
 
@@ -79,83 +80,112 @@ body {
     font-weight: 700;
 }
 
-.green {
-    color: #31d158;
+.panel {
+    background: #151d32;
+    border: 1px solid #26334f;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.red {
-    color: #ff453a;
-}
-
-.yellow {
-    color: #ffd60a;
-}
-
-.chart {
-    margin-top: 20px;
-    min-height: 260px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #657087;
-}
-
-.section {
-    margin-top: 20px;
-}
-
-.section-title {
+.panel-title {
     font-size: 18px;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
+}
+
+.chart-wrap {
+    width: 100%;
+    height: 330px;
+    position: relative;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
 }
 
 .flow-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 14px;
 }
 
-.trade {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #252e45;
+.flow-item {
+    margin: 12px 0;
+    font-size: 16px;
 }
 
-.trade:last-child {
-    border-bottom: none;
+.buy {
+    color: #22c55e;
 }
 
-.small {
-    color: #8e99ad;
-    font-size: 12px;
+.sell {
+    color: #ef4444;
+}
+
+.net {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.trades {
+    color: #cbd5e1;
+}
+
+.trade-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.trade-table th,
+.trade-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #27324a;
+    text-align: left;
+    font-size: 14px;
+}
+
+.trade-table th {
+    color: #91a4c9;
+}
+
+.tx {
+    color: #7db3ff;
+    text-decoration: none;
+}
+
+.empty {
+    color: #71809d;
+    padding: 15px 0;
 }
 
 .footer {
-    margin-top: 25px;
-    text-align: center;
-    color: #657087;
+    color: #667593;
     font-size: 12px;
+    text-align: center;
+    margin-top: 20px;
 }
 
-@media(max-width: 800px) {
-    .grid {
+@media (max-width: 800px) {
+
+    .cards {
         grid-template-columns: 1fr 1fr;
     }
 
     .flow-grid {
         grid-template-columns: 1fr;
     }
+
+    .title {
+        font-size: 24px;
+    }
 }
 
-@media(max-width: 500px) {
-    .grid {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 500px) {
 
-    .container {
-        padding: 15px;
+    .cards {
+        grid-template-columns: 1fr;
     }
 }
 </style>
@@ -166,244 +196,692 @@ body {
 <div class="container">
 
     <div class="header">
+
         <div>
-            <div class="title">PTX / USDT V2 Monitor</div>
+            <div class="title">
+                PTX / USDT V2 Monitor
+            </div>
+
             <div class="subtitle">
                 BSC · PancakeSwap V2
             </div>
         </div>
 
-        <div class="status">
-            <span class="dot"></span>
-            LIVE
+        <div class="live">
+            <span class="live-dot"></span>
+            <span id="status">LIVE</span>
         </div>
+
     </div>
 
-    <div class="grid">
+
+    <!-- TOP CARDS -->
+
+    <div class="cards">
 
         <div class="card">
             <div class="label">PTX PRICE</div>
-            <div class="value" id="price">$0.00000000</div>
+            <div class="value" id="price">—</div>
         </div>
 
         <div class="card">
             <div class="label">PTX RESERVE</div>
-            <div class="value" id="ptxReserve">0</div>
+            <div class="value" id="poolPtx">—</div>
         </div>
 
         <div class="card">
             <div class="label">USDT RESERVE</div>
-            <div class="value" id="usdtReserve">$0</div>
+            <div class="value" id="poolUsdt">—</div>
         </div>
 
         <div class="card">
-            <div class="label">LAST BLOCK</div>
-            <div class="value" id="block">-</div>
+            <div class="label">LAST ACTIVITY</div>
+            <div class="value" id="lastActivity">—</div>
         </div>
 
     </div>
 
-    <div class="card section">
 
-        <div class="section-title">
+    <!-- PRICE CHART -->
+
+    <div class="panel">
+
+        <div class="panel-title">
             PTX PRICE
         </div>
 
-        <div class="chart">
-            Price chart will appear here
+        <div class="chart-wrap">
+            <canvas id="priceChart"></canvas>
         </div>
 
     </div>
 
-    <div class="flow-grid section">
 
-        <div class="card">
+    <!-- FLOW -->
 
-            <div class="section-title">
+    <div class="flow-grid">
+
+        <div class="panel">
+
+            <div class="panel-title">
                 PTX V2 · 5 MIN FLOW
             </div>
 
-            <p>
+            <div class="flow-item buy">
                 🟢 BUY:
-                <strong id="buy5">$0</strong>
-            </p>
+                <strong id="buy5">$0.00</strong>
+            </div>
 
-            <p>
+            <div class="flow-item sell">
                 🔴 SELL:
-                <strong id="sell5">$0</strong>
-            </p>
+                <strong id="sell5">$0.00</strong>
+            </div>
 
-            <p>
+            <div class="flow-item net">
                 NET FLOW:
-                <strong id="net5">$0</strong>
-            </p>
+                <strong id="net5">$0.00</strong>
+            </div>
 
-            <p>
+            <div class="flow-item trades">
                 TRADES:
                 <strong id="trades5">0</strong>
-            </p>
+            </div>
 
         </div>
 
-        <div class="card">
 
-            <div class="section-title">
+        <div class="panel">
+
+            <div class="panel-title">
                 PTX V2 · 1 HOUR FLOW
             </div>
 
-            <p>
+            <div class="flow-item buy">
                 🟢 BUY:
-                <strong id="buy60">$0</strong>
-            </p>
+                <strong id="buy60">$0.00</strong>
+            </div>
 
-            <p>
+            <div class="flow-item sell">
                 🔴 SELL:
-                <strong id="sell60">$0</strong>
-            </p>
+                <strong id="sell60">$0.00</strong>
+            </div>
 
-            <p>
+            <div class="flow-item net">
                 NET FLOW:
-                <strong id="net60">$0</strong>
-            </p>
+                <strong id="net60">$0.00</strong>
+            </div>
 
-            <p>
+            <div class="flow-item trades">
                 TRADES:
                 <strong id="trades60">0</strong>
-            </p>
+            </div>
 
         </div>
 
     </div>
 
-    <div class="card section">
 
-        <div class="section-title">
+    <!-- RECENT TRADES -->
+
+    <div class="panel">
+
+        <div class="panel-title">
             RECENT TRADES
         </div>
 
-        <div id="trades">
-            Waiting for trades...
+        <div id="recentTrades" class="empty">
+            暂无交易
         </div>
 
     </div>
 
+
     <div class="footer">
         PTX V2 Monitor · BSC · PancakeSwap V2
-        <br>
-        Auto refresh every 5 seconds
     </div>
 
 </div>
 
+
 <script>
 
-async function loadData() {
+const API = "/api/status";
+
+const MAX_POINTS = 120;
+
+let priceHistory = [];
+
+
+// ============================
+// Helpers
+// ============================
+
+function money(value, decimals = 2) {
+
+    const n = Number(value || 0);
+
+    return "$" + n.toLocaleString(
+        "en-US",
+        {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        }
+    );
+}
+
+
+function priceFormat(value) {
+
+    const n = Number(value || 0);
+
+    if (!n) return "$0.00000000";
+
+    return "$" + n.toFixed(8);
+}
+
+
+function timeFormat(timestamp) {
+
+    if (!timestamp) return "—";
+
+    const d = new Date(timestamp * 1000);
+
+    return d.toLocaleTimeString();
+}
+
+
+// ============================
+// Update dashboard
+// ============================
+
+async function updateDashboard() {
 
     try {
 
-        const response = await fetch("/api/status");
+        const response = await fetch(
+            API + "?t=" + Date.now(),
+            {
+                cache: "no-store"
+            }
+        );
 
         if (!response.ok) {
-            throw new Error("API unavailable");
+            throw new Error("API HTTP " + response.status);
         }
 
         const data = await response.json();
 
-        if (data.price !== undefined) {
-            document.getElementById("price").innerText =
-                "$" + Number(data.price).toFixed(8);
-        }
 
-        if (data.pool_ptx !== undefined) {
-            document.getElementById("ptxReserve").innerText =
-                Number(data.pool_ptx).toLocaleString();
-        }
+        // Status
 
-        if (data.pool_usdt !== undefined) {
-            document.getElementById("usdtReserve").innerText =
-                "$" + Number(data.pool_usdt).toLocaleString();
-        }
+        document.getElementById("status").textContent =
+            data.status || "LIVE";
 
-        if (data.last_block !== undefined) {
-            document.getElementById("block").innerText =
-                data.last_block;
-        }
 
-        if (data.flow5) {
+        // Price
 
-            document.getElementById("buy5").innerText =
-                "$" + Number(data.flow5.buy).toFixed(2);
+        const price = Number(data.price || 0);
 
-            document.getElementById("sell5").innerText =
-                "$" + Number(data.flow5.sell).toFixed(2);
+        document.getElementById("price").textContent =
+            priceFormat(price);
 
-            document.getElementById("net5").innerText =
-                "$" + Number(data.flow5.net).toFixed(2);
 
-            document.getElementById("trades5").innerText =
-                data.flow5.trades;
-        }
+        // Pool
 
-        if (data.flow60) {
+        document.getElementById("poolPtx").textContent =
+            Number(data.pool_ptx || 0).toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
 
-            document.getElementById("buy60").innerText =
-                "$" + Number(data.flow60.buy).toFixed(2);
 
-            document.getElementById("sell60").innerText =
-                "$" + Number(data.flow60.sell).toFixed(2);
+        document.getElementById("poolUsdt").textContent =
+            money(data.pool_usdt, 3);
 
-            document.getElementById("net60").innerText =
-                "$" + Number(data.flow60.net).toFixed(2);
 
-            document.getElementById("trades60").innerText =
-                data.flow60.trades;
-        }
+        // Price history
 
-        if (data.trades) {
+        if (price > 0) {
 
-            const box = document.getElementById("trades");
-
-            box.innerHTML = "";
-
-            data.trades.forEach(trade => {
-
-                const row = document.createElement("div");
-
-                row.className = "trade";
-
-                const side =
-                    trade.side === "BUY"
-                    ? '<span class="green">BUY</span>'
-                    : '<span class="red">SELL</span>';
-
-                row.innerHTML = `
-                    <span>
-                        ${side}
-                        ${Number(trade.ptx_amount).toFixed(2)} PTX
-                    </span>
-
-                    <span>
-                        $${Number(trade.usdt_amount).toFixed(2)}
-                    </span>
-                `;
-
-                box.appendChild(row);
-
+            priceHistory.push({
+                time: Date.now(),
+                price: price
             });
 
+            if (priceHistory.length > MAX_POINTS) {
+                priceHistory.shift();
+            }
+
+            drawChart();
         }
+
+
+        // Last activity
+
+        if (data.trades && data.trades.length > 0) {
+
+            const last =
+                data.trades[data.trades.length - 1];
+
+            document.getElementById("lastActivity").textContent =
+                timeFormat(last.timestamp);
+
+        } else {
+
+            document.getElementById("lastActivity").textContent =
+                "No trades";
+        }
+
+
+        // 5 minute
+
+        const f5 = data.flow5 || {};
+
+        document.getElementById("buy5").textContent =
+            money(f5.buy);
+
+        document.getElementById("sell5").textContent =
+            money(f5.sell);
+
+        document.getElementById("net5").textContent =
+            money(f5.net);
+
+        document.getElementById("trades5").textContent =
+            f5.trades || 0;
+
+
+        // 1 hour
+
+        const f60 = data.flow60 || {};
+
+        document.getElementById("buy60").textContent =
+            money(f60.buy);
+
+        document.getElementById("sell60").textContent =
+            money(f60.sell);
+
+        document.getElementById("net60").textContent =
+            money(f60.net);
+
+        document.getElementById("trades60").textContent =
+            f60.trades || 0;
+
+
+        // Recent trades
+
+        renderTrades(data.trades || []);
+
 
     } catch (error) {
 
-        console.log("Dashboard API:", error);
+        console.error(error);
+
+        document.getElementById("status").textContent =
+            "OFFLINE";
 
     }
 
 }
 
-loadData();
 
-setInterval(loadData, 5000);
+// ============================
+// Recent trades
+// ============================
+
+function renderTrades(trades) {
+
+    const container =
+        document.getElementById("recentTrades");
+
+
+    if (!trades.length) {
+
+        container.innerHTML =
+            '<div class="empty">暂无交易</div>';
+
+        return;
+    }
+
+
+    const rows = trades
+        .slice()
+        .reverse()
+        .slice(0, 20)
+        .map(trade => {
+
+            const side =
+                String(trade.side || "").toUpperCase();
+
+            const sideClass =
+                side === "BUY" ? "buy" : "sell";
+
+
+            const tx =
+                trade.tx_hash || "";
+
+
+            const shortTx =
+                tx.length > 14
+                ? tx.slice(0, 8) + "..." + tx.slice(-6)
+                : tx;
+
+
+            return `
+                <tr>
+
+                    <td class="${sideClass}">
+                        ${side}
+                    </td>
+
+                    <td>
+                        ${priceFormat(trade.price)}
+                    </td>
+
+                    <td>
+                        ${Number(
+                            trade.ptx_amount || 0
+                        ).toLocaleString(
+                            "en-US",
+                            {
+                                maximumFractionDigits: 4
+                            }
+                        )}
+                    </td>
+
+                    <td>
+                        ${money(trade.usdt_amount)}
+                    </td>
+
+                    <td>
+                        ${timeFormat(trade.timestamp)}
+                    </td>
+
+                    <td>
+
+                        ${
+                            tx
+                            ?
+                            `<a
+                                class="tx"
+                                target="_blank"
+                                href="https://bscscan.com/tx/${tx}"
+                            >
+                                ${shortTx}
+                            </a>`
+                            :
+                            "—"
+                        }
+
+                    </td>
+
+                </tr>
+            `;
+
+        })
+        .join("");
+
+
+    container.innerHTML = `
+
+        <table class="trade-table">
+
+            <thead>
+
+                <tr>
+                    <th>SIDE</th>
+                    <th>PRICE</th>
+                    <th>PTX</th>
+                    <th>USDT</th>
+                    <th>TIME</th>
+                    <th>TX</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${rows}
+
+            </tbody>
+
+        </table>
+    `;
+}
+
+
+// ============================
+// Price chart
+// ============================
+
+function drawChart() {
+
+    const canvas =
+        document.getElementById("priceChart");
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    const dpr =
+        window.devicePixelRatio || 1;
+
+
+    canvas.width =
+        rect.width * dpr;
+
+    canvas.height =
+        rect.height * dpr;
+
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    ctx.scale(dpr, dpr);
+
+
+    const width =
+        rect.width;
+
+    const height =
+        rect.height;
+
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    if (priceHistory.length < 2) {
+
+        ctx.fillStyle = "#71809d";
+
+        ctx.font = "16px Arial";
+
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            "Collecting price data...",
+            width / 2,
+            height / 2
+        );
+
+        return;
+    }
+
+
+    const prices =
+        priceHistory.map(
+            p => p.price
+        );
+
+
+    let min =
+        Math.min(...prices);
+
+    let max =
+        Math.max(...prices);
+
+
+    if (min === max) {
+
+        min *= 0.999;
+
+        max *= 1.001;
+    }
+
+
+    const padding = 40;
+
+
+    // Grid
+
+    ctx.strokeStyle = "#26334f";
+
+    ctx.lineWidth = 1;
+
+
+    for (let i = 0; i <= 4; i++) {
+
+        const y =
+            padding +
+            (height - padding * 2) *
+            i / 4;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            padding,
+            y
+        );
+
+        ctx.lineTo(
+            width - padding,
+            y
+        );
+
+        ctx.stroke();
+    }
+
+
+    // Price line
+
+    ctx.beginPath();
+
+
+    prices.forEach(
+        (value, index) => {
+
+            const x =
+                padding +
+                (width - padding * 2) *
+                index /
+                (prices.length - 1);
+
+
+            const y =
+                height -
+                padding -
+                (value - min) /
+                (max - min) *
+                (height - padding * 2);
+
+
+            if (index === 0) {
+
+                ctx.moveTo(x, y);
+
+            } else {
+
+                ctx.lineTo(x, y);
+            }
+
+        }
+    );
+
+
+    ctx.strokeStyle = "#4ade80";
+
+    ctx.lineWidth = 2.5;
+
+    ctx.stroke();
+
+
+    // Current price
+
+    const last =
+        prices[prices.length - 1];
+
+
+    const lastX =
+        width - padding;
+
+
+    const lastY =
+        height -
+        padding -
+        (last - min) /
+        (max - min) *
+        (height - padding * 2);
+
+
+    ctx.fillStyle = "#4ade80";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        lastX,
+        lastY,
+        4,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    // Price label
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.font = "13px Arial";
+
+    ctx.textAlign = "right";
+
+    ctx.fillText(
+        priceFormat(last),
+        width - padding,
+        Math.max(
+            15,
+            lastY - 10
+        )
+    );
+}
+
+
+// ============================
+// Start
+// ============================
+
+updateDashboard();
+
+setInterval(
+    updateDashboard,
+    5000
+);
+
+
+window.addEventListener(
+    "resize",
+    drawChart
+);
 
 </script>
 
