@@ -399,11 +399,11 @@ async function updateDashboard() {
     try {
 
         const response = await fetch(
-            API + "?t=" + Date.now(),
-            {
-                cache: "no-store"
-            }
-        );
+    API,
+    {
+        cache: "no-store"
+    }
+);
 
         if (!response.ok) {
             throw new Error("API HTTP " + response.status);
