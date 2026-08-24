@@ -116,83 +116,78 @@ logger = logging.getLogger("PTX-V2")
 # This endpoint is only for health checks; trading logic remains V2-only.
 # ============================================================
 class HealthHandler(BaseHTTPRequestHandler):
-       def do_GET(self):
 
-# ==============================
-# Dashboard
-# ==============================
-if self.path == "/":
+    def do_GET(self):
 
-    dashboard_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "dashboard.html"
-    )
+        # Dashboard
+        if self.path == "/":
 
-    try:
-        with open(dashboard_path, "rb") as f:
-            body = f.read()
+            dashboard_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "dashboard.html"
+            )
 
-        self.send_response(200)
-        self.send_header(
-            "Content-Type",
-            "text/html; charset=utf-8"
-        )
-        self.send_header(
-            "Content-Length",
-            str(len(body))
-        )
-        self.end_headers()
+            try:
+                with open(dashboard_path, "rb") as f:
+                    body = f.read()
 
-        self.wfile.write(body)
-        return
+                self.send_response(200)
+                self.send_header(
+                    "Content-Type",
+                    "text/html; charset=utf-8"
+                )
+                self.send_header(
+                    "Content-Length",
+                    str(len(body))
+                )
+                self.end_headers()
 
-    except Exception as exc:
-        logger.exception(
-            "Dashboard读取失败: %s",
-            exc
-        )
+                self.wfile.write(body)
+                return
 
-        body = b"Dashboard unavailable"
+            except Exception as exc:
 
-        self.send_response(500)
-        self.send_header(
-            "Content-Type",
-            "text/plain; charset=utf-8"
-        )
-        self.send_header(
-            "Content-Length",
-            str(len(body))
-        )
-        self.end_headers()
+                logger.exception(
+                    "Dashboard读取失败: %s",
+                    exc
+                )
 
-        self.wfile.write(body)
-        return
+                body = b"Dashboard unavailable"
 
+                self.send_response(500)
+                self.send_header(
+                    "Content-Type",
+                    "text/plain; charset=utf-8"
+                )
+                self.send_header(
+                    "Content-Length",
+                    str(len(body))
+                )
+                self.end_headers()
 
-# ==============================
-# Health check
-# ==============================
-if self.path == "/health":
+                self.wfile.write(body)
+                return
 
-    body = b"PTX V2 monitor is running"
+        # Health check
+        if self.path == "/health":
 
-    self.send_response(200)
-    self.send_header(
-        "Content-Type",
-        "text/plain; charset=utf-8"
-    )
-    self.send_header(
-        "Content-Length",
-        str(len(body))
-    )
-    self.end_headers()
+            body = b"PTX V2 monitor is running"
 
-    self.wfile.write(body)
-    return
+            self.send_response(200)
+            self.send_header(
+                "Content-Type",
+                "text/plain; charset=utf-8"
+            )
+            self.send_header(
+                "Content-Length",
+                str(len(body))
+            )
+            self.end_headers()
 
-        # ==============================
+            self.wfile.write(body)
+            return
+
         # Dashboard API
-        # ==============================
         if self.path == "/api/status":
 
             flow5_trades, flow5_buy, flow5_sell, flow5_net = STATE.flow(300)
@@ -282,10 +277,7 @@ if self.path == "/health":
             self.wfile.write(body)
             return
 
-        # ==============================
         # Not Found
-        # ==============================
-
         body = b"Not Found"
 
         self.send_response(404)
@@ -302,11 +294,10 @@ if self.path == "/health":
 
         self.end_headers()
 
-        self.wfile.write(body) 
-   
-   
+        self.wfile.write(body)
 
-
+    def log_message(self, format, *args):
+        return
 def start_health_server():
     port = int(os.getenv("PORT", "10000"))
     server = ThreadingHTTPServer(("0.0.0.0", port), HealthHandler)
